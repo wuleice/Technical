@@ -1,0 +1,18 @@
+通过swap file的方式增加swap空间
+1，创建如下文件，其中65536为swap的大小10240MB，其他数据可以使用大小乘1024计算得出：
+# dd if=/dev/zero of=/swapfile bs=1024 count=10485760
+
+2，设置swap文件：
+# mkswap /swapfile
+
+3，修改文件权限：
+# chmod 0600 /swapfile
+
+4，编辑/etc/fstab文件，在底部增加如下语句：
+/swapfile swap swap defaults 0 0
+
+5，重新挂载，使配置生效：
+# systemctl daemon-reload
+
+6，激活swap文件：
+# swapon /swapfile
