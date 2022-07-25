@@ -1,0 +1,6 @@
+1，在服务端管理员登录
+sqlplus / as sysdba
+
+2，使用密码登录
+sqlplus /nolog
+SQL> conn sys/huawei as sysdba
