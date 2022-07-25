@@ -4,3 +4,11 @@ sqlplus / as sysdba
 2，使用密码登录
 sqlplus /nolog
 SQL> conn sys/password as sysdba
+
+3，不显露密码的方式登录（如果是以sys用户登录，必须在输入密码之后，加上as sysdba字句）
+sqlplus    
+Enter user-name：sys
+Enter password：password as sysdba
+
+查看数据的所有容器：
+show pdbs;
