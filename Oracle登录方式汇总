@@ -13,6 +13,9 @@ Enter password：password as sysdba
 查看数据的所有容器：
 show pdbs;
 
+切换到对应的容器：
+alter session set container=PDB01;
+
 查询表空间：
 select name from v$tablespace;
 
