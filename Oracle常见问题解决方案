@@ -51,3 +51,8 @@ SQL> show pdbs;
 	 2 PDB$SEED			  READ ONLY  NO
 	 3 PDB01			  MOUNTED
 SQL> select name from v$tablespace;
+
+
+2，ORA-01109: database not open
+SQL> startup
+Pluggable Database opened.
