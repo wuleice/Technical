@@ -1,0 +1,53 @@
+1，ORA-01034: ORACLE not available
+[oracle@dbn01 ~]$ sqlplus / as sysdba
+
+SQL*Plus: Release 19.0.0.0.0 - Production on Wed Jul 27 20:36:05 2022
+Version 19.3.0.0.0
+
+Copyright (c) 1982, 2019, Oracle.  All rights reserved.
+
+Connected to an idle instance.
+
+SQL> startup mount;
+ORACLE instance started.
+
+Total System Global Area 1.6777E+10 bytes
+Fixed Size		    9156168 bytes
+Variable Size		 2717908992 bytes
+Database Buffers	 1.4026E+10 bytes
+Redo Buffers		   24395776 bytes
+Database mounted.
+SQL> alter database open resetlogs;
+alter database open resetlogs
+*
+ERROR at line 1:
+ORA-01139: RESETLOGS option only valid after an incomplete database recovery
+
+
+SQL> recover database until time '2022-07-27 12:00:00';                
+Media recovery complete.
+SQL> alter database open resetlogs;
+
+Database altered.
+
+SQL> shutdown
+Database closed.
+Database dismounted.
+ORACLE instance shut down.
+SQL> startup
+ORACLE instance started.
+
+Total System Global Area 1.6777E+10 bytes
+Fixed Size		    9156168 bytes
+Variable Size		 2717908992 bytes
+Database Buffers	 1.4026E+10 bytes
+Redo Buffers		   24395776 bytes
+Database mounted.
+Database opened.
+SQL> show pdbs;
+
+    CON_ID CON_NAME			  OPEN MODE  RESTRICTED
+---------- ------------------------------ ---------- ----------
+	 2 PDB$SEED			  READ ONLY  NO
+	 3 PDB01			  MOUNTED
+SQL> select name from v$tablespace;
