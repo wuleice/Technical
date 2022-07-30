@@ -1,44 +1,69 @@
-查询表空间：
-select name from v$tablespace;
+    在Oracle数据库中，数据实际是存储在数据文件中的，表空间是一个逻辑概念，用于对所有的数据文件进行分类、组织、管理。
+    为了便于理解，可以把Oracle看作是一个数据字典，其中的数据文件就相当于实际存储在字典中的字，而表空间就是这个字典的目录。目录的信息不是字典中实际存储的数据，
+而是对这些数据的分类和管理结构。
+    Oracle的表空间和文件的对应关系为：
+    Oracle : 表空间 = 1 : N
+    表空间 : 数据文件 = 1 : N
+    一个表空间只能属于一个数据库，一个数据文件也只能属于一个表空间。
+    好比目录可以划分子目录，表空间也可以划分更细的逻辑存储单元。一个表空间自顶向下可以划分为表空间（tablespace）、段（segment）、区间（extend）、数据文件（data file）。
+自顶向下，每个都可以包含多个下级逻辑单元。
 
-SELECT file_name, tablespace_name, bytes, autoextensible FROM dba_data_files WHERE tablespace_name = 'CCDATA';
+    表空间的类别主要有如下几类：
+    1，词典管理表空间（dictionary-managed tablespaces）
+    用于记录各个表空间的使用状态，哪些区域使用了，哪些区域未使用，都会在该表空间中进行记录。在Oracle安装完成时，自动生成名称为SYSTEM的表空间，以及对应的辅助表空间
+SYSAUX表空间，这两个表空间属于系统表空间。
+    2，临时表空间（temporary tablespaces）
+    临时表空间用于存放临时数据，当执行大量查询时，内存无法存放中间数据，则这些中间数据会存放在临时表空间中进行排序等操作。在Oracle安装完成时，自动生成名称为TEMP的
+表空间，用户也可以自己创建临时表空间。
+    3，撤销表空间（undo tablespaces）
+    undo表空间主要用于数据回滚操作，当用户修改了某个数据时，undo表空间会保存修改前的数据，用于后续用户的回滚操作。
+    4，大文件表空间（bigfile tablespaces）和小文件表空间（smallfile tablespaces）
+    大文件表空间主要用于超大型数据库，通过大数据文件减少数据文件的数量，使得更新数据文件头信息的速度更快一些。小文件表空间就是常规的文件表空间。这两个表空间都是用
+户自行根据业务需求创建的表空间。
 
-查看默认表空间：
-select default_tablespace from user_users;
-
-查询临时表空间：
-select t.TABLESPACE_NAME, t.FILE_NAME, t.AUTOEXTENSIBLE, t.BYTES / 1024 / 1024 as tsize, t.MAXBYTES / 1024 / 1024 msize, b.CONTENTS, b.EXTENT_MANAGEMENT from dba_temp_files t, dba_tablespaces b where t.TABLESPACE_NAME = b.TABLESPACE_NAME;
-参数解释如下：
-select t.TABLESPACE_NAME, --表空间名
-       t.FILE_NAME, --文件名
-       t.AUTOEXTENSIBLE, --是否自动扩展
-       t.BYTES / 1024 / 1024 as tsize, --表空间初始大小
-       t.MAXBYTES / 1024 / 1024 msize, --表空间最大扩展到多少
-       b.CONTENTS, --表空间类型
-       b.EXTENT_MANAGEMENT --表空间管理模式
-  from dba_temp_files t, dba_tablespaces b
- where t.TABLESPACE_NAME = b.TABLESPACE_NAME
+    表空间的常见操作如下：
+    1，查询所有的表空间：
+    select name from v$tablespace;
+    
+    2，查询具体的某个表空间的相信信息：
+    select file_name, tablespace_name, bytes, autoextensible from dba_data_files where tablespace_name = 'CCDATA';
+    
+    3，查看默认表空间：
+    select default_tablespace from user_users;
+    
+    4，查询临时表空间：
+    select t.TABLESPACE_NAME, t.FILE_NAME, t.AUTOEXTENSIBLE, t.BYTES / 1024 / 1024 as tsize, t.MAXBYTES / 1024 / 1024 msize, b.CONTENTS, b.EXTENT_MANAGEMENT from dba_temp_files t, dba_tablespaces b where t.TABLESPACE_NAME = b.TABLESPACE_NAME;
+    参数解释如下：
+    select t.TABLESPACE_NAME, --表空间名
+           t.FILE_NAME, --文件名
+           t.AUTOEXTENSIBLE, --是否自动扩展
+           t.BYTES / 1024 / 1024 as tsize, --表空间初始大小
+           t.MAXBYTES / 1024 / 1024 msize, --表空间最大扩展到多少
+           b.CONTENTS, --表空间类型
+           b.EXTENT_MANAGEMENT --表空间管理模式
+      from dba_temp_files t, dba_tablespaces b
+     where t.TABLESPACE_NAME = b.TABLESPACE_NAME
  
- 创建表空间：
- create tablespace test_space datafile '/home/oracle/test_space.dbf' size 64M autoextend on;
- 语法为：
- CREATE TABLESPACE 表空间名
-DATAFILE '数据文件路径' SIZE 大小，单位K或者M
-[AUTOEXTEND ON] [NEXT 大小]
-[MAXSIZE 大小];
+    5，创建表空间：
+    create tablespace test_space datafile '/home/oracle/test_space.dbf' size 64M autoextend on;
+    语法为：
+    CREATE TABLESPACE 表空间名
+    DATAFILE '数据文件路径' SIZE 大小，单位K或者M
+    [AUTOEXTEND ON] [NEXT 大小]
+    [MAXSIZE 大小];
 
-修改表空间：
-alter tablespace test_space add datafile '/home/oracle/test_space_2.dbf' size 20M autoextend on;
-语法如下：
-ALTER TABLESPACE 表空间名
-ADD DATAFILE '文件路径' SIZE 大小
-[AUTOEXTEND ON] [NEXT大小]
-[MAXSIZE 大小];
+    6，修改表空间：
+    alter tablespace test_space add datafile '/home/oracle/test_space_2.dbf' size 20M autoextend on;
+    语法如下：
+    ALTER TABLESPACE 表空间名
+    ADD DATAFILE '文件路径' SIZE 大小
+    [AUTOEXTEND ON] [NEXT大小]
+    [MAXSIZE 大小];
 
-删除表空间：
-drop tablespace test_space including contents and datafiles;
-语法如下：
---仅删除表空间
-DROP TABLESPACE 表空间名;
---删除表空间及数据文件
-DROP TABLESPACE 表空间名 INCLUDING CONTENTS AND DATAFILES;
+    7，删除表空间：
+    drop tablespace test_space including contents and datafiles;
+    语法如下：
+    --仅删除表空间
+    DROP TABLESPACE 表空间名;
+    --删除表空间及数据文件
+    DROP TABLESPACE 表空间名 INCLUDING CONTENTS AND DATAFILES;
