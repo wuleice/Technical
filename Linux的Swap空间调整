@@ -16,3 +16,12 @@
 
 6，激活swap文件：
 # swapon /swapfile
+
+如果我们分配的swap空间过大，而根目录的剩余空间不足以分配这么多空间，会导致后续写fstab文件失败，此时如果磁盘还有剩余空间，我们可以调整根目录的大小，操作如下：
+1，使用fdisk划分磁盘，划分完成之后，使用partprobe使划分生效。
+2，将新划分的分区转化为物理卷：pvcreate /dev/sda4
+3，将物理卷增加到逻辑卷组：vgextend rhel /dev/sda4
+4，扩充逻辑卷：lvextend -L +90G /dev/mapper/rhel-root
+5，使扩容生效：xfs_growfs /dev/mapper/rhel-root
+
+
